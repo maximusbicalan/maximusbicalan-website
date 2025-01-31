@@ -1,0 +1,5 @@
+watchdog
+sqlite3
+flask
+click
+flask-Cors
