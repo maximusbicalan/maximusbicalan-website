@@ -18,7 +18,7 @@ const Projects: React.FC<{ projects: Project[] }> = ({ projects }) => {
   };
 
   return (
-    <section className="py-16 bg-base-100">
+    <section id="projects" className="py-16 bg-base-100">
       <div className="container mx-auto px-4">
         <div className="relative w-full h-[400px] flex items-center justify-center">
           {/* Centered h2 Text */}

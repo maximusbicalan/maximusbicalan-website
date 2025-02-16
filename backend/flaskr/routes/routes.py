@@ -4,116 +4,82 @@ from datetime import datetime
 
 main_routes = Blueprint('routes_bp', __name__)
 
-# Helper function to serialize SQLAlchemy models
 def serialize_model(model):
     return {c.name: getattr(model, c.name) for c in model.__table__.columns}
 
-### User Authentication ###
+# User Routes
 @main_routes.route('/api/users', methods=['GET'])
 def get_users():
-    """Retrieve all users."""
     users = User.query.all()
     return jsonify([serialize_model(user) for user in users])
 
-@main_routes.route('/api/login', methods=['POST'])
-def login():
-    """Handle user login."""
+@main_routes.route('/api/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    user = User.query.get_or_404(user_id)
+    return jsonify(serialize_model(user))
+
+@main_routes.route('/api/users', methods=['POST'])
+def create_user():
     data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-
-    user = User.query.filter_by(username=username, password=password).first()
-    if user:
-        return jsonify({'isAdmin': user.is_admin, 'message': 'Login successful'})
-    else:
-        return jsonify({'error': 'Invalid credentials'}), 401
-
-### Messages ###
-
-@main_routes.route('/api/messages', methods=['POST'])
-def create_message():
-    """Handle sending a message."""
-    data = request.get_json()
-    if not data or not data.get('email') or not data.get('message'):
-        return jsonify({'error': 'Email and message are required'}), 400
-
-    message = Message(email=data['email'], content=data['message'])
-    db.session.add(message)
+    if not data or not data.get('username') or not data.get('password'):
+        return jsonify({'error': 'Username and password are required'}), 400
+    user = User(username=data['username'], password=data['password'], is_admin=data.get('is_admin', False))
+    db.session.add(user)
     db.session.commit()
-    return jsonify({'message': 'Message sent successfully'}), 201
+    return jsonify({'message': 'User created successfully', 'user': serialize_model(user)}), 201
 
+@main_routes.route('/api/users/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    user = User.query.get_or_404(user_id)
+    data = request.get_json()
+    user.username = data.get('username', user.username)
+    user.password = data.get('password', user.password)
+    user.is_admin = data.get('is_admin', user.is_admin)
+    db.session.commit()
+    return jsonify({'message': 'User updated successfully', 'user': serialize_model(user)})
+
+@main_routes.route('/api/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': 'User deleted successfully'})
+
+# Message Routes
 @main_routes.route('/api/messages', methods=['GET'])
 def get_messages():
-    """Retrieve all messages (admin only)."""
     messages = Message.query.all()
     return jsonify([serialize_model(msg) for msg in messages])
 
-### Skills ###
+@main_routes.route('/api/messages/<int:message_id>', methods=['GET'])
+def get_message(message_id):
+    message = Message.query.get_or_404(message_id)
+    return jsonify(serialize_model(message))
 
+@main_routes.route('/api/messages', methods=['POST'])
+def create_message():
+    data = request.get_json()
+    if not data or not data.get('email_field') or not data.get('message_content'):
+        return jsonify({'error': 'Email and message content are required'}), 400
+    message = Message(email_field=data['email_field'], message_content=data['message_content'])
+    db.session.add(message)
+    db.session.commit()
+    return jsonify({'message': 'Message sent successfully', 'message_data': serialize_model(message)}), 201
+
+@main_routes.route('/api/messages/<int:message_id>', methods=['DELETE'])
+def delete_message(message_id):
+    message = Message.query.get_or_404(message_id)
+    db.session.delete(message)
+    db.session.commit()
+    return jsonify({'message': 'Message deleted successfully'})
+
+# Skill Routes
 @main_routes.route('/api/skills', methods=['GET'])
 def get_skills():
-    """Retrieve all skills."""
     skills = Skill.query.all()
     return jsonify([serialize_model(skill) for skill in skills])
 
-@main_routes.route('/api/skills', methods=['POST'])
-def add_skill():
-    """Add a new skill (admin only)."""
-    data = request.get_json()
-    if not data or not data.get('name'):
-        return jsonify({'error': 'Skill name is required'}), 400
-
-    skill = Skill(
-        name=data['name'],
-        type=data.get('type'),
-        category=data.get('category')
-    )
-    db.session.add(skill)
-    db.session.commit()
-    return jsonify({'message': 'Skill added successfully', 'skill': serialize_model(skill)}), 201
-
-@main_routes.route('/api/skills/<int:skill_id>', methods=['DELETE'])
-def delete_skill(skill_id):
-    """Delete a skill (admin only)."""
-    skill = Skill.query.get_or_404(skill_id)
-    db.session.delete(skill)
-    db.session.commit()
-    return jsonify({'message': 'Skill deleted successfully'})
-
-### Projects ###
-
-@main_routes.route('/api/projects', methods=['GET'])
-def get_projects():
-    """Retrieve all projects."""
-    projects = Project.query.all()
-    return jsonify([serialize_model(project) for project in projects])
-
-@main_routes.route('/api/projects', methods=['POST'])
-def add_project():
-    """Add a new project (admin only)."""
-    data = request.get_json()
-    if not data or not data.get('title') or not data.get('description') or not data.get('image'):
-        return jsonify({'error': 'Title, description, and image are required'}), 400
-
-    project = Project(
-        title=data['title'],
-        description=data['description'],
-        image=data['image']
-    )
-    db.session.add(project)
-    db.session.commit()
-    return jsonify({'message': 'Project added successfully', 'project': serialize_model(project)}), 201
-
-@main_routes.route('/api/projects/<int:project_id>', methods=['DELETE'])
-def delete_project(project_id):
-    """Delete a project (admin only)."""
-    project = Project.query.get_or_404(project_id)
-    db.session.delete(project)
-    db.session.commit()
-    return jsonify({'message': 'Project deleted successfully'})
-
-### Error Handling ###
-
+# Error Handling
 @main_routes.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Resource not found'}), 404

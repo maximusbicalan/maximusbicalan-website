@@ -1,1 +1,17 @@
 flask --app flaskr run
+
+
+set FLASK_APP=app.py
+
+To reflect changes in frontend to backend webapp:
+
+    python watch_and_run.py to reflect changes on react frontend
+    ---Purpose---
+        To make the backend the sole app running
+
+To connect to POSTGRESQL database:
+
+    -Open HeidiSQL
+    -Create new session
+    -Select POSTGRESQL TCP/IP 
+    -Enter credentials 

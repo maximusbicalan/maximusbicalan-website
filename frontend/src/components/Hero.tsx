@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import profileMe from '../assets/profile_me.png';
 const Hero: React.FC = () => {
   const greetings = ['Visitors!', 'Friends!', 'Everyone!', 'Miss!', 'Sir!'];
   const [currentGreeting, setCurrentGreeting] = useState(greetings[0]);
@@ -17,13 +17,13 @@ const Hero: React.FC = () => {
   }, [greetings]);
 
   return (
-    <section className="relative min-h-screen bg-base-200">
+    <section id="hero" className="relative min-h-screen bg-base-200">
       {/* Hero Content */}
       <div className="hero min-h-screen">
         <div className="hero-content flex-col lg:flex-row-reverse">
           <img
-            src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-            className="max-w-sm rounded-lg shadow-2xl"
+            src={profileMe}
+            className="max-w-sm h-130 w-200 rounded-lg shadow-2xl"
             alt="Hero"
           />
           <div>
@@ -36,7 +36,6 @@ const Hero: React.FC = () => {
             <p className="py-6">
               I am Maximus Aurellus J. Bicalan. A passionate software enthusiast who likes to build web applications and learn new technologies in the field of data engineering and software development during my free time. Currently, I am a student at the University of the Philippines Los Baños, taking up BS Computer Science.
             </p>
-            <button className="btn btn-primary">Get Started</button>
           </div>
         </div>
       </div>
