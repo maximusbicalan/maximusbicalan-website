@@ -1,4 +1,4 @@
-[[redirects]]
-from="/*"
-to="/index.html"
-status=200
+[build]
+  base = "frontend"       # Navigate to the frontend directory
+  command = "npm run build"  # Build command (adjust if needed)
+  publish = "frontend/dist"  # Directory where the built files are placed
