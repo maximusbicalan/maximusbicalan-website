@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
-
+//import { useAuth } from '../services/AuthContext';
+//import {api} from '../services/axiosInstance';
 const Header: React.FC = () => {
+  //const {user, login, logout} = useAuth();
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  //const [showLogin, setShowLogin] = useState(false);
+  //const [username, setUsername] = useState('');
+  //const [password, setPassword] = useState('');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -10,6 +15,20 @@ const Header: React.FC = () => {
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
+
+  // const handleLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   try {
+  //     const response = await api.post('/login', { username, password }); // Send login request
+  //     login(response.data.token); // Save token in AuthContext
+  //     console.log(response);
+  //     setShowLogin(false);
+  //   } catch (error) {
+  //     console.log(error);
+  //     alert('Login failed!');
+
+  //   }
+  // };
 
   return (
     <div className="navbar bg-base-100 fixed top-0 left-0 w-full z-50">
@@ -49,7 +68,24 @@ const Header: React.FC = () => {
           <li><a href="#skills" className="scroll-smooth">Skills</a></li>
         </ul>
       </div>
-      <div className="navbar-end">
+      <div className="navbar-end flex items-center gap-4">
+        {/* {!user ? (
+          <>
+            <button className="btn btn-primary" onClick={() => setShowLogin(!showLogin)}>Login</button>
+            {showLogin && (
+              <form onSubmit={handleLogin} className="absolute bg-white p-4 rounded shadow-lg top-16 right-4">
+                <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required className="input input-bordered mb-2 w-full" />
+                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required className="input input-bordered mb-2 w-full" />
+                <button type="submit" className="btn btn-primary w-full">Login</button>
+              </form>
+            )}
+          </>
+        ) : (
+          <>
+            <span className="text-sm">Hello, {user.username}</span>
+            <button className="btn btn-error" onClick={logout}>Logout</button>
+          </>
+        )} */}
         <button className="btn btn-ghost" onClick={toggleTheme} aria-label="Toggle theme">
           {theme === 'light' ? (
             <svg

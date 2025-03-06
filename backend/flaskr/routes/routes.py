@@ -1,12 +1,25 @@
 from flask import Blueprint, request, jsonify
-from flaskr.models import db, User, Message, Skill, Project
-from datetime import datetime
+from flaskr.models import db, User, Message
+from datetime import datetime, timedelta
+import jwt
+from werkzeug.security import check_password_hash
 
 main_routes = Blueprint('routes_bp', __name__)
 
 def serialize_model(model):
     return {c.name: getattr(model, c.name) for c in model.__table__.columns}
 
+SECRET_KEY = 'administrator'
+# Login Routes
+@main_routes.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    user = User.query.filter_by(username=data['username']).first()
+    print("queried first user", user)
+    if user and user.password == data['password']:
+        token = jwt.encode({'id': user.id, 'username': user.username, 'is_admin': user.is_admin, 'exp': datetime.utcnow() + timedelta(hours=1)}, SECRET_KEY, algorithm='HS256')
+        return jsonify({'token': token})
+    return jsonify({'error': 'Invalid credentialss', 'user': user.password}), 401
 # User Routes
 @main_routes.route('/api/users', methods=['GET'])
 def get_users():
@@ -72,12 +85,6 @@ def delete_message(message_id):
     db.session.delete(message)
     db.session.commit()
     return jsonify({'message': 'Message deleted successfully'})
-
-# Skill Routes
-@main_routes.route('/api/skills', methods=['GET'])
-def get_skills():
-    skills = Skill.query.all()
-    return jsonify([serialize_model(skill) for skill in skills])
 
 # Error Handling
 @main_routes.errorhandler(404)
